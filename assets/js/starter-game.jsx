@@ -25,6 +25,8 @@ class Memory extends React.Component {
       root.state.firstSel = false
       root.state.secSel = false
       if (root.state.letterMatrix[x0][y0].name == root.state.letterMatrix[x1][y1].name) {
+        root.state.letterMatrix[x0][y0].name = false
+        root.state.letterMatrix[x1][y1].name = false
       } else {
         root.state.letterMatrix[x0][y0].revealed = false
         root.state.letterMatrix[x1][y1].revealed = false
@@ -32,14 +34,15 @@ class Memory extends React.Component {
       root.setState(root.state)
     }
     return function(_ev) {
-	root.state.letterMatrix[i][j].revealed = true
 	if (root.state.secSel) {
+          return
 	} else if (root.state.firstSel) {
 	  root.state.secSel = [i, j]
 	  window.setTimeout(next, 1000)
 	} else {
 	  root.state.firstSel = [i, j]
 	}
+	root.state.letterMatrix[i][j].revealed = true
 	root.setState(root.state)
     }
   }
@@ -60,15 +63,23 @@ class Memory extends React.Component {
     let root = this
     function makeColumn(a, i, j) {
      if (a[i][j].revealed) {
-        return <div className="column">
-          <p>{a[i][j].name}</p>
+	if (a[i][j].name) {
+          return <div className="column">
+	    <div className="letter">{a[i][j].name}</div>
+          </div>;
+	} else { 
+          return <div className="column">
+            <div className="blank" disabled>?</div>
+          </div>;
+	}
+      } else if (a.secSel) {
+	return <div className="column">
+            <button disabled>?</button>
         </div>;
       } else {
         return <div className="column">
             <button onClick={root.reveal(i, j).bind(root)}>?</button>
         </div>;
-        //return <button onClick={this.init.bind(this)}>Click this button!</button>;
-        //return <p><button onClick={this.reveal(i, j).bind(this)}>?</button></p>
       }
     }
     function makeRow(a, i) {
