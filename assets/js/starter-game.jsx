@@ -11,8 +11,10 @@ class Memory extends React.Component {
     super(props);
     this.state = { letterMatrix: false,
 	           firstSel: false,
-	           secSel: false
-                   };
+	           secSel: false,
+	           clicks: 0,
+	           revealCount: 0
+    };
   }
 
   reveal(i, j) {
@@ -27,6 +29,7 @@ class Memory extends React.Component {
       if (root.state.letterMatrix[x0][y0].name == root.state.letterMatrix[x1][y1].name) {
         root.state.letterMatrix[x0][y0].name = false
         root.state.letterMatrix[x1][y1].name = false
+	root.state.revealCount += 2
       } else {
         root.state.letterMatrix[x0][y0].revealed = false
         root.state.letterMatrix[x1][y1].revealed = false
@@ -42,10 +45,12 @@ class Memory extends React.Component {
 	} else {
 	  root.state.firstSel = [i, j]
 	}
+	root.state.clicks += 1
 	root.state.letterMatrix[i][j].revealed = true
 	root.setState(root.state)
     }
   }
+
   init(_ev) {
     function addFalse(a, b, c) {
         return { name:a, revealed:false }
@@ -55,7 +60,9 @@ class Memory extends React.Component {
     arr = _.chunk(arr, 4);
     let state1 = _.assign({}, this.state, {letterMatrix: arr,
 	                                   firstSel: false,
-                                           secSel: false});
+                                           secSel: false,
+                                           clicks: 0,
+                                           revealCount: 0});
     this.setState(state1);
   }
 
@@ -69,16 +76,16 @@ class Memory extends React.Component {
           </div>;
 	} else { 
           return <div className="column">
-            <div className="blank" disabled>?</div>
+            <div className="blank"></div>
           </div>;
 	}
       } else if (a.secSel) {
 	return <div className="column">
-            <button disabled>?</button>
+            <button className="tile" disabled>?</button>
         </div>;
       } else {
         return <div className="column">
-            <button onClick={root.reveal(i, j).bind(root)}>?</button>
+            <button className="tile" onClick={root.reveal(i, j).bind(root)}>?</button>
         </div>;
       }
     }
@@ -90,14 +97,28 @@ class Memory extends React.Component {
 	{makeColumn(a, i, 3)}
       </div>;
     }
-    
+    function header() {
+      return <div className="row">
+      <div className="column"></div>
+      <div className="column"><button onClick={root.init.bind(root)}>Restart Game</button></div>
+      <div className="column"><p>Score: {root.state.clicks}</p></div>
+      <div className="column"></div></div>
+    }
+
     if (this.state.letterMatrix == false) {
-        return <button onClick={this.init.bind(this)}>Click this button!</button>;
+        return <button onClick={this.init.bind(this)}>Start Game</button>;
+    } else if (this.state.revealCount >= 16) {
+	return <div>{header()}
+		    <p className="big">You win!</p>
+	       </div>;
     } else {
-      return <div>{makeRow(this.state.letterMatrix, 0)} 
+        return <div>
+	     {header()}
+	     {makeRow(this.state.letterMatrix, 0)} 
              {makeRow(this.state.letterMatrix, 1)}
              {makeRow(this.state.letterMatrix, 2)}
-             {makeRow(this.state.letterMatrix, 3)}</div>;
+             {makeRow(this.state.letterMatrix, 3)}
+	     </div>;
     }
   }
 }
