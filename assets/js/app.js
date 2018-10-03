@@ -17,10 +17,24 @@ import $ from "jquery";
 // Local files can be imported directly using relative paths, for example:
 // import socket from "./socket"
 
+import socket from "./socket"
 import game_init from "./starter-game";
 
-$(() => {
-  let root = $('#root')[0];
-  game_init(root);
-});
+function form_init() {
+  $('#game-button').click(() => {
+    window.location.assign('/game/' + $('#game-input').val());
+  });
+}
 
+function start() {
+  let root = document.getElementById('root');
+  if (root) {
+    let channel = socket.channel("games:" + window.gameName, {});
+    game_init(root, channel);
+  }
+  if (document.getElementById('game-input')) {
+    form_init();
+  }
+}
+
+$(start);

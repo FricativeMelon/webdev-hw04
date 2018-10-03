@@ -2,19 +2,34 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
-export default function game_init(root) {
-  ReactDOM.render(<Memory />, root);
+export default function memory_init(root, channel) {
+  ReactDOM.render(<Memory channel={channel}/>, root);
 }
 
 class Memory extends React.Component {
   constructor(props) {
     super(props);
+    this.channel = props.channel;
     this.state = { letterMatrix: false,
 	           firstSel: false,
 	           secSel: false,
 	           clicks: 0,
 	           revealCount: 0
     };
+
+    this.channel.join()
+	  .receive("ok", this.gotView.bind(this))
+	  .receive("error", resp => { console.log("Unable to join", resp) });
+  }
+
+  gotView(view) {
+    console.log("new view", view);
+    this.setState(view.game);
+  }
+
+  sendClick(ev) {
+    this.channel.push("click", { letter: ev })
+	  .receive("ok", this.gotView.bind(this));
   }
 
   reveal(i, j) {
