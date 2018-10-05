@@ -21,16 +21,15 @@ class Memory extends React.Component {
   }
 
   gotView(view) {
-    root = this
     function sendDonePause() {
-      if (root.state.pause) {
-        root.channel.push("donePause", {})
-          .receive("ok", root.gotView.bind(root))
+      if (this.state.pause) {
+        this.channel.push("donePause", {})
+          .receive("ok", this.gotView.bind(this))
       }
     }
     console.log("new view", view);
-    if (view.game.pause && !root.state.pause) {
-      window.setTimeout(sendDonePause, 1000);
+    if (view.game.pause && !this.state.pause) {
+      window.setTimeout(sendDonePause.bind(this), 1000);
     }
     this.setState(view.game);
   }
